@@ -3,29 +3,26 @@
 
 #include <QList>
 #include "domain/ballstate.hh"
+#include "domain/gameevent.hh"
 #include "domain/robotstate.hh"
-#include "3rdparty/proto/pb/ssl_gc_referee_message.pb.h"
+#include "types/refstates.hh"
 
 class WorldSnapshot {
 public:
     WorldSnapshot() = default;
 
-    // Timestamp (em segundos)
     double timestamp() const { return timestamp_; }
     void setTimestamp(double t) { timestamp_ = t; }
 
-    // Bola
     const BallState &ball() const { return ball_; }
     void setBall(const BallState &ball) { ball_ = ball; }
 
-    // Robôs
     const QList<RobotState> &robots() const { return robots_; }
     void clearRobots() { robots_.clear(); }
     void addRobot(const RobotState &robot) { robots_.append(robot); }
 
-    // Dados do Referee (gameState, goleiros e ponto de placement)
-    ssl::Referee::Command refereeCommand() const { return refereeCommand_; }
-    void setRefereeCommand(ssl::Referee::Command cmd) { refereeCommand_ = cmd; }
+    RefereeStates::State refState() const { return refState_; }
+    void setRefState(RefereeStates::State state) { refState_ = state; }
 
     const PlayerID &yellowGoalkeeper() const { return yellowGoalkeeper_; }
     const PlayerID &blueGoalkeeper() const { return blueGoalkeeper_; }
@@ -34,24 +31,23 @@ public:
         blueGoalkeeper_ = blueGk;
     }
 
-    const Vec2 &designatedPosition() const { return designatedPosition_; }
-    void setDesignatedPosition(const Vec2 &pos) { designatedPosition_ = pos; }
+    const Vec2 &ballPlacementPos() const { return ballPlacementPos_; }
+    void setBallPlacementPos(const Vec2 &pos) { ballPlacementPos_ = pos; }
 
-    // Eventos do AutoReferee (colisões, faltas, placement)
-    const QList<ssl::GameEvent> &events() const { return events_; }
+    const QList<GameEvent> &events() const { return events_; }
     void clearEvents() { events_.clear(); }
-    void addEvent(const ssl::GameEvent &ev) { events_.append(ev); }
+    void addEvent(const GameEvent &ev) { events_.append(ev); }
 
 private:
     double timestamp_{0.0};
     BallState ball_;
     QList<RobotState> robots_;
 
-    ssl::Referee::Command refereeCommand_{ssl::Referee::HALT};
+    RefereeStates::State refState_{RefereeStates::HALT};
     PlayerID yellowGoalkeeper_;
     PlayerID blueGoalkeeper_;
-    Vec2 designatedPosition_{0.0f, 0.0f};
-    QList<ssl::GameEvent> events_;
+    Vec2 ballPlacementPos_{0.0f, 0.0f};
+    QList<GameEvent> events_;
 };
 
 #endif

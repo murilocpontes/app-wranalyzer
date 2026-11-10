@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
                     << "| t =" << QString::number(snap.timestamp(), 'f', 3)
                     << "| Bola:" << vec2ToString(snap.ball().pos())
                     << "| Robôs:" << snap.robots().size()
-                    << "| RefCmd:" << snap.refereeCommand();
+                    << "| RefCmd:" << snap.refState();
         }
     }
     qInfo() << "Leitura concluída! Total de snapshots processados:" << frameCount;

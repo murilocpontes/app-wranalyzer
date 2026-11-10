@@ -7,7 +7,6 @@
 #include "3rdparty/proto/pb/ssl_vision_wrapper_tracked.pb.h"
 #include "types/color.hh"
 
-using namespace ssl;
 
 LogsData::LogsData(QString &filePath) : filePath_(filePath) {}
 
@@ -119,7 +118,7 @@ bool LogsData::readRawMessage(qint64 &timestampNs, qint32 &messageId, QByteArray
 }
 
 bool LogsData::parseTracker(qint64 timestampNs, const QByteArray &payload){
-    TrackerWrapperPacket packet;
+    ssl::TrackerWrapperPacket packet;
 
     if(!packet.ParseFromArray(payload.data(), payload.size())){
         return false;
@@ -135,7 +134,7 @@ bool LogsData::parseTracker(qint64 timestampNs, const QByteArray &payload){
         return false;
     }
 
-    const TrackedFrame &frame = packet.tracked_frame();
+    const ssl::TrackedFrame &frame = packet.tracked_frame();
 
     if(frame.timestamp() <= lastTimestamp_){
         return false;
@@ -145,7 +144,7 @@ bool LogsData::parseTracker(qint64 timestampNs, const QByteArray &payload){
     currentSnapshot_.setTimestamp(lastTimestamp_);
 
     if (frame.balls_size() > 0){
-        const TrackedBall &b = frame.balls(0);
+        const ssl::TrackedBall &b = frame.balls(0);
         Vec2 ballPos(b.pos().x(), b.pos().y());
         Vec2 ballVel = b.has_vel() ? Vec2(b.vel().x(), b.vel().y()) : Vec2(0.0f, 0.0f);
         currentSnapshot_.setBall(BallState(ballPos, ballVel));
@@ -153,8 +152,8 @@ bool LogsData::parseTracker(qint64 timestampNs, const QByteArray &payload){
 
     currentSnapshot_.clearRobots();
     for (int i = 0; i < frame.robots_size(); ++i) {
-        const TrackedRobot &r = frame.robots(i);
-        Colors::Color teamColor = (r.robot_id().team() == Team::YELLOW)
+        const ssl::TrackedRobot &r = frame.robots(i);
+        Colors::Color teamColor = (r.robot_id().team() == ssl::Team::YELLOW)
                                       ? Colors::YELLOW
                                       : Colors::BLUE;
         PlayerID id(teamColor, static_cast<quint8>(r.robot_id().id()));
@@ -168,13 +167,13 @@ bool LogsData::parseTracker(qint64 timestampNs, const QByteArray &payload){
 }
 
 void LogsData::parseReferee(const QByteArray &payload) {
-    Referee ref;
+    ssl::Referee ref;
     if (!ref.ParseFromArray(payload.constData(), payload.size())) {
         return;
     }
 
     // Atualiza comando do juiz, IDs dos goleiros e eventos do AutoRef no snapshot atual
-    currentSnapshot_.setRefereeCommand(ref.command());
+    currentSnapshot_.setRefState(convertRefCommand(ref.command()));
     currentSnapshot_.setGoalkeepers(
         PlayerID(Colors::YELLOW, static_cast<quint8>(ref.yellow().goalkeeper())),
         PlayerID(Colors::BLUE,   static_cast<quint8>(ref.blue().goalkeeper()))
@@ -183,6 +182,6 @@ void LogsData::parseReferee(const QByteArray &payload) {
     // Eventos do AutoReferee (faltas, colisões, ball placement)
     currentSnapshot_.clearEvents();
     for (int i = 0; i < ref.game_events_size(); ++i) {
-        currentSnapshot_.addEvent(ref.game_events(i));
+        currentSnapshot_.addEvent(convertGameEvent(ref.game_events(i)));
     }
 }
