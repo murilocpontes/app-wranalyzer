@@ -1,0 +1,25 @@
+#ifndef REFSTATE_HH
+#define REFSTATE_HH
+
+namespace RefereeStates {
+enum State {
+    HALT,
+    TIMEOUT,
+    STOP,
+    OUR_PREPARE_KICKOFF,
+    THEIR_PREPARE_KICKOFF,
+    OUR_BALL_PLACEMENT,
+    THEIR_BALL_PLACEMENT,
+    OUR_PREPARE_PENALTY,
+    THEIR_PREPARE_PENALTY,
+    OUR_KICKOFF,
+    THEIR_KICKOFF,
+    OUR_FREEKICK,
+    THEIR_FREEKICK,
+    OUR_PENALTY,
+    THEIR_PENALTY,
+    RUN
+};
+} // namespace RefereeStates
+
+#endif
