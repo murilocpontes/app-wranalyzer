@@ -2,6 +2,8 @@
 #define DATASOURCE_HH
 
 #include "domain/worldsnapshot.hh"
+#include "3rdparty/proto/pb/ssl_gc_referee_message.pb.h"
+#include "3rdparty/proto/pb/ssl_gc_game_event.pb.h"
 
 class DataSource {
 public:

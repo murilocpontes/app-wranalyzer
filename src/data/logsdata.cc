@@ -6,6 +6,7 @@
 #include "3rdparty/proto/pb/ssl_gc_referee_message.pb.h"
 #include "3rdparty/proto/pb/ssl_vision_wrapper_tracked.pb.h"
 #include "types/color.hh"
+#include "utils/protoconverter.hh"
 
 
 LogsData::LogsData(QString &filePath) : filePath_(filePath) {}
@@ -173,7 +174,7 @@ void LogsData::parseReferee(const QByteArray &payload) {
     }
 
     // Atualiza comando do juiz, IDs dos goleiros e eventos do AutoRef no snapshot atual
-    currentSnapshot_.setRefState(convertRefCommand(ref.command()));
+    currentSnapshot_.setRefState(ProtoConverter::convertRefCommand(ref.command()));
     currentSnapshot_.setGoalkeepers(
         PlayerID(Colors::YELLOW, static_cast<quint8>(ref.yellow().goalkeeper())),
         PlayerID(Colors::BLUE,   static_cast<quint8>(ref.blue().goalkeeper()))
@@ -182,6 +183,6 @@ void LogsData::parseReferee(const QByteArray &payload) {
     // Eventos do AutoReferee (faltas, colisões, ball placement)
     currentSnapshot_.clearEvents();
     for (int i = 0; i < ref.game_events_size(); ++i) {
-        currentSnapshot_.addEvent(convertGameEvent(ref.game_events(i)));
+        currentSnapshot_.addEvent(ProtoConverter::convertGameEvent(ref.game_events(i)));
     }
 }
